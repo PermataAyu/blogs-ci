@@ -1,0 +1,106 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize] 
+
+jobs:
+  build_and_test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests
+      run: npx playwright test
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+    - uses: actions/checkout@v6
+    - uses: actions/setup-node@v6
+      with: 
+        node-version: 24
+    - name: Install dependencies
+      run: npm install
+    - name: Check style
+      run: npm run eslint
+    - name: Run npm test
+      run: npm test
+    - name: Run npm build
+      run: npm run build
+  deploy:
+    needs: [build_and_test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy on fly.io
+        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message), '#skip')}}
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  notify_failure:
+    needs: [deploy]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Discord fail info
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          content: ":x: **Build Failed!** The pipeline encountered an errror"
+          nodetail: true
+          title: "Failure Details" 
+          description: |
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ join(github.event.commits.*.id) }}
+            Message: ${{ join(github.event.commits.*.message) }}
+            Author: ${{ join(github.event.commits.*.author.name) }}
+            Workflow: ${{ github.workflow }}
+            Job: ${{ github.job }}
+
+            [View Commit](${{ join(github.event.commits.*.url)}})
+            [View Workflow Run](${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}})
+  notify_success:
+    needs: [deploy]
+    if: ${{ success()}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Discord success info
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          nodetail: true
+          content: ":white_check_mark: **Deployment Successfull!** A new version deployed to production"
+          title: Deployment Details
+          description: |
+            Commit: ${{ join(github.event.commits.*.id) }}
+            Message: ${{ join(github.event.commits.*.message) }}
+            Author: ${{ join(github.event.commits.*.author.name) }}
+  tag_releases:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+      - name: Bump version and push tag
+        if: ${{ !contains(join(github.event.commits.*.message), '#skip') && success()}}
+        uses: anothrNick/github-tag-action@1.75.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
