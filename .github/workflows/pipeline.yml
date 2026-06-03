@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: npm install
     - name: Check style
-      run: npm run eslint
+      run: cd frontend && npm run lint
     - name: Run npm test
       run: npm test
     - name: Run npm build

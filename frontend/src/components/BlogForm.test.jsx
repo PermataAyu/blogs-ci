@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import BlogForm from './BlogForm'
 import userEvent from '@testing-library/user-event'
-import {vi} from 'vitest'
+import {test, expect, vi} from 'vitest'
 
 test('<BlogForm /> updates parent state and calls onSubmit', async () => {
   const createBlog = vi.fn()
