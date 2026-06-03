@@ -11,6 +11,7 @@
     "dev": "cross-env NODE_ENV=development node --watch index.js",
     "test": "cross-env NODE_ENV=test node --test",
     "build:dev": "rmdir /s /q dist && cd frontend && npm run build && robocopy dist ../dist /E",
+    "build": "cd frontend && npm ci && npm run build && cp -r dist ../dist",
     "start:test": "cross-env NODE_ENV=test node --watch index.js"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "mongoose": "^9.1.5"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.10",
     "supertest": "^7.1.4"
   }
 }

@@ -5,16 +5,14 @@ const middleware = require('./utils/middleware')
 const blogRouter = require('./controllers/blog')
 const usersRouter = require('./controllers/user')
 const loginRouter = require('./controllers/login')
-const dns = require('node:dns/promises')
-const cors = require('cors')
+/* const dns = require('node:dns/promises') */
 
 const app = express()
 
-dns.setServers(['1.1.1.1'])
+/* dns.setServers(['1.1.1.1']) */
 
 mongoose.connect(config.mongoUrl, {family:4})
 
-app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
 app.use(middleware.tokenExtractor)
