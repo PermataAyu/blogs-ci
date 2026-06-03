@@ -5,11 +5,13 @@ const middleware = require('./utils/middleware')
 const blogRouter = require('./controllers/blog')
 const usersRouter = require('./controllers/user')
 const loginRouter = require('./controllers/login')
-const dns = require('node:dns/promises')
 
 const app = express()
 
-dns.setServers(['1.1.1.1'])
+if (process.env.NODE_ENV !== 'production') {
+  const dns = require('node:dns/promises')
+  dns.setServers(['1.1.1.1'])
+}
 
 mongoose.connect(config.mongoUrl, {family:4})
 
@@ -20,7 +22,7 @@ app.use('/api/blogs', middleware.userExtractor, blogRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 
-if (process.env.NODE_ENV === 'test' || process.env.CI) {
+if (process.env.NODE_ENV !== 'production' ) {
   const testingRouter = require('./controllers/test')
   app.use('/api/testing', testingRouter)
 }
