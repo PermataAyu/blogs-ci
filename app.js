@@ -5,11 +5,11 @@ const middleware = require('./utils/middleware')
 const blogRouter = require('./controllers/blog')
 const usersRouter = require('./controllers/user')
 const loginRouter = require('./controllers/login')
-/* const dns = require('node:dns/promises') */
+const dns = require('node:dns/promises')
 
 const app = express()
 
-/* dns.setServers(['1.1.1.1']) */
+dns.setServers(['1.1.1.1'])
 
 mongoose.connect(config.mongoUrl, {family:4})
 

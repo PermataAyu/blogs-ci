@@ -10,9 +10,6 @@ primary_region = 'nrt'
 
 [env]
   PORT = "3003"
-  MONGODB_URI= "mongodb+srv://fullstack:fullstack@cluster0.41mfqu0.mongodb.net/?appName=Cluster0"
-  TEST_MONGODB_URI= "mongodb+srv://fullstack:fullstack@cluster0.41mfqu0.mongodb.net/?appName=Cluster0"
-  SECRET = "donttellanyone"
 
 [processes]
   app = "node index.js"
