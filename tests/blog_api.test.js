@@ -235,9 +235,8 @@ describe ('when there is only one user in db', async () => {
     await user.save()
   })
 
-  const usersAtStart = await helper.usersInDb()
-
   test('create new user', async () => {
+    const usersAtStart = await helper.usersInDb()
     const newUser = {
       username: 'Arto',
       name: 'Arto Hellas',
@@ -258,6 +257,7 @@ describe ('when there is only one user in db', async () => {
   })
 
   test('reject ValidationError', async () => {
+    const usersAtStart = await helper.usersInDb()
     const newUser = {
       username: 'adall',
       name: 'Ada Lovelace',
@@ -277,6 +277,7 @@ describe ('when there is only one user in db', async () => {
   })
 
   test('reject MongoServerError', async () => {
+    const usersAtStart = await helper.usersInDb()
     const newUser = {
       username:'novelty',
       name: 'Ada Lovelace',
