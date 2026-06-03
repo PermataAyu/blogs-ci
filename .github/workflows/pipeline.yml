@@ -23,6 +23,10 @@ jobs:
     - name: Check style
       run: cd frontend && npm ci && npm run lint
     - name: Run npm test
+      env:
+        NODE_ENV: test
+        TEST_MONGODB_URI: ${{secrets.TEST_MONGODB_URI}}
+        SECRET: ${{secrets.SECRET}}
       run: npm test
     - name: Run npm build
       run: npm run build
