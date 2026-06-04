@@ -24,6 +24,10 @@ jobs:
     - name: Check environment
       run: echo 
     - name: Run Playwright tests
+      env: 
+        MONGODB_URI: ${{secrets.MONGODB_URI}}
+        TEST_MONGODB_URI: ${{secrets.TEST_MONGODB_URI}}
+        SECRET: ${{secrets.SECRET}}
       run: npx playwright test
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
